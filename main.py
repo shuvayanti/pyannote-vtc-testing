@@ -14,6 +14,7 @@ from pyannote.audio.tasks import VoiceTypeClassification
 from pyannote.core import Annotation
 from pyannote.database import FileFinder, get_protocol
 from pyannote.database.util import load_rttm
+from pyannote.metrics.base import BaseMetric
 from pyannote.pipeline import Optimizer
 from pytorch_lightning import Trainer
 from pytorch_lightning.callbacks import EarlyStopping
@@ -22,6 +23,13 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from tqdm import tqdm
 
 DEVICE = "gpu" if torch.cuda.is_available() else "cpu"
+
+VTC_DEBUG_CLASSES = {'classes': ["READER", "AGREER", "DISAGREER"],
+                     'unions': {"COMMENTERS": ["AGREER", "DISAGREER"]},
+                     'intersections': {}}
+BASAL_VOICE_CLASSES = {'classes': ["P", "NP"],
+                       'unions': {},
+                       'intersections': {}}
 
 
 class BaseCommand:
@@ -60,11 +68,8 @@ class TrainCommand(BaseCommand):
     @classmethod
     def run(cls, args: Namespace):
         protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
-        if args.classes == "vtc_debug":
-            classes_kwargs = {'classes': ["READER", "AGREER", "DISAGREER"],
-                              'unions': {"COMMENTERS": ["AGREER", "DISAGREER"]}}
-        else:
-            classes_kwargs = {'classes': ["P", "NP"]}
+        classes_kwargs = VTC_DEBUG_CLASSES if args.classes == "vtc_debug" else BASAL_VOICE_CLASSES
+
         vtc = VoiceTypeClassification(protocol,
                                       **classes_kwargs,
                                       duration=2.00)
@@ -123,12 +128,19 @@ class TuneCommand(BaseCommand):
                             help="Model checkpoint to tune pipeline with")
         parser.add_argument("-nit", "--n_iterations", type=int, default=50,
                             help="Number of tuning iterations")
+        parser.add_argument("--metric", choices=["fscore", "ier"],
+                            default="fscore")
 
     @classmethod
     def run(cls, args: Namespace):
         protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
-        model = Inference(args.model_path)
-        pipeline = MultilabelDetection(segmentation=model)
+        model = Model.from_pretrained(
+            Path(args.restart),
+            map_location=DEVICE,
+            strict=False,
+        )
+        pipeline = MultilabelDetection(segmentation=model,
+                                       fscore=args.metric == "fscore")
         validation_files = list(protocol.development())
         optimizer = Optimizer(pipeline)
         optimizer.tune(validation_files,
@@ -161,7 +173,11 @@ class ApplyCommand(BaseCommand):
     @classmethod
     def run(cls, args: Namespace):
         protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
-        model = Inference(args.model_path)
+        model = Model.from_pretrained(
+            Path(args.restart),
+            map_location=DEVICE,
+            strict=False,
+        )
         pipeline = MultilabelDetection(segmentation=model)
         pipeline.load_params(args.params)
         apply_folder: Path = args.exp_dir / "apply/" if args.apply_folder is None else args.apply_folder
@@ -184,6 +200,8 @@ class ScoreCommand(BaseCommand):
                             help="Path to the inference files")
         parser.add_argument("--metric", choices=["fscore", "ier"],
                             default="fscore")
+        parser.add_argument("--model", type=Path, required=True,
+                            help="Model architecture")
 
     @classmethod
     def run(cls, args: Namespace):
@@ -193,11 +211,18 @@ class ScoreCommand(BaseCommand):
         for filepath in apply_folder.glob("*.rttm"):
             rttm_annots = load_rttm(filepath)
             annotations.update(rttm_annots)
-        metric = None  # TODO: load either MultilabelIER or MultilabelFMeasure using task specs
+        model = Inference(args.model_path)
+        pipeline = MultilabelDetection(segmentation=model,
+                                       fscore=args.metric == "fscore")
+        metric: BaseMetric = pipeline.get_metric()
+
         for file in protocol.test():
             if file["uri"] not in annotations:
                 continue
-            pass  # TODO : score
+            inference = annotations[file["uri"]]
+            metric(file["annotation"], inference, file["annotated"])
+
+        metric.report(display=True)
 
 
 commands = [TrainCommand, TuneCommand, ApplyCommand, ScoreCommand]
