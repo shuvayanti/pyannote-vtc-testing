@@ -96,7 +96,7 @@ class TrainCommand(BaseCommand):
             save_top_k=5,
             every_n_epochs=1,
             save_last=True,
-            dirpath=".",
+            dirpath=checkpoints_path,
             filename=f"{{epoch}}-{{{value_to_monitor}:.6f}}",
             verbose=True)
 
