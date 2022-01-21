@@ -5,7 +5,7 @@
 
 # loading modules and activating the right conda env
 source ~htiteux/.bashrc
-module load cuda/10.0 anaconda
+module load cuda/10.0 anaconda espeak mbrola
 conda activate pyannote-vtc-v2
 
 python main.py runs/basal_voice/ train \
