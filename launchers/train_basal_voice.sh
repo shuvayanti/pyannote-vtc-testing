@@ -9,7 +9,7 @@ module load cuda/10.0 anaconda
 conda activate pyannote-vtc-v2
 
 python main.py runs/basal_voice/ train \
--p BasalVoice.SpeakerDiarization.InterviewDiarizationProtocol
---classes basalvoice
---model_type pyannet
+-p BasalVoice.SpeakerDiarization.InterviewDiarizationProtocol \
+--classes basalvoice \
+--model_type pyannet \
 --epoch 200
