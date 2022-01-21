@@ -111,7 +111,7 @@ class TrainCommand(BaseCommand):
         logger = TensorBoardLogger(args.exp_dir,
                                    name="VTCTest", version="", log_graph=False)
 
-        trainer = Trainer(gpus=1, callbacks=[model_checkpoint, early_stopping], logger=logger)
+        trainer = Trainer(devices=1, accelerator="gpu", callbacks=[model_checkpoint, early_stopping], logger=logger)
         trainer.fit(model)
 
 
