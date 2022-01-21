@@ -81,7 +81,6 @@ class TrainCommand(BaseCommand):
         else:
             model = Model.from_pretrained(
                 Path(args.restart),
-                map_location=DEVICE,
                 strict=False,
             )
 
@@ -135,8 +134,7 @@ class TuneCommand(BaseCommand):
     def run(cls, args: Namespace):
         protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
         model = Model.from_pretrained(
-            Path(args.restart),
-            map_location=DEVICE,
+            Path(args.model_path),
             strict=False,
         )
         pipeline = MultilabelDetection(segmentation=model,
