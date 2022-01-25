@@ -8,8 +8,9 @@ source ~htiteux/.bashrc
 module load anaconda espeak mbrola
 conda activate pyannote-vtc-v2
 
-python main.py runs/basal_voice/ train \
+python main.py runs/basal_voice/ tune \
 -p BasalVoice.SpeakerDiarization.InterviewDiarizationProtocol \
+--model_path runs/basal_voice/checkpoints/last.ckpt \
+-nit 50 \
 --classes basalvoice \
---model_type pyannet \
---epoch 200
+--metric fscore

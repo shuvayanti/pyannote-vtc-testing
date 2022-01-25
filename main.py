@@ -44,6 +44,14 @@ class BaseCommand:
     def run(cls, args: Namespace):
         pass
 
+    @classmethod
+    def get_task(cls, args: Namespace):
+        protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
+        classes_kwargs = VTC_DEBUG_CLASSES if args.classes == "vtc_debug" else BASAL_VOICE_CLASSES
+        return VoiceTypeClassification(protocol,
+                                       **classes_kwargs,
+                                       duration=2.00)
+
 
 class TrainCommand(BaseCommand):
     COMMAND = "train"
@@ -67,12 +75,9 @@ class TrainCommand(BaseCommand):
 
     @classmethod
     def run(cls, args: Namespace):
-        protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
-        classes_kwargs = VTC_DEBUG_CLASSES if args.classes == "vtc_debug" else BASAL_VOICE_CLASSES
 
-        vtc = VoiceTypeClassification(protocol,
-                                      **classes_kwargs,
-                                      duration=2.00)
+        vtc = cls.get_task(args)
+
         if args.restart is None:
             if args.model_type == "simple":
                 model = SimpleSegmentationModel(task=vtc)
@@ -123,6 +128,9 @@ class TuneCommand(BaseCommand):
         parser.add_argument("-p", "--protocol", type=str,
                             default="VTCDebug.SpeakerDiarization.PoetryRecitalDiarization",
                             help="Pyannote database")
+        parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
+                            required=True,
+                            type=str, help="Model architecture")
         parser.add_argument("-m", "--model_path", type=Path, required=True,
                             help="Model checkpoint to tune pipeline with")
         parser.add_argument("-nit", "--n_iterations", type=int, default=50,
@@ -133,10 +141,13 @@ class TuneCommand(BaseCommand):
     @classmethod
     def run(cls, args: Namespace):
         protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
+        vtc = cls.get_task(args)
         model = Model.from_pretrained(
             Path(args.model_path),
             strict=False,
         )
+        # Dirty fix for the non-serialization of the task params
+        model.task = vtc
         pipeline = MultilabelDetection(segmentation=model,
                                        fscore=args.metric == "fscore")
         validation_files = list(protocol.development())
@@ -161,6 +172,9 @@ class ApplyCommand(BaseCommand):
         parser.add_argument("-p", "--protocol", type=str,
                             default="VTCDebug.SpeakerDiarization.PoetryRecitalDiarization",
                             help="Pyannote database")
+        parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
+                            required=True,
+                            type=str, help="Model architecture")
         parser.add_argument("-m", "--model_path", type=Path, required=True,
                             help="Model checkpoint to run pipeline with")
         parser.add_argument("--params", type=Path,
@@ -173,9 +187,11 @@ class ApplyCommand(BaseCommand):
         protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
         model = Model.from_pretrained(
             Path(args.restart),
-            map_location=DEVICE,
             strict=False,
         )
+        vtc = cls.get_task(args)
+        # Dirty fix for the non-serialization of the task params
+        model.task = vtc
         pipeline = MultilabelDetection(segmentation=model)
         pipeline.load_params(args.params)
         apply_folder: Path = args.exp_dir / "apply/" if args.apply_folder is None else args.apply_folder
@@ -196,6 +212,9 @@ class ScoreCommand(BaseCommand):
     def init_parser(cls, parser: ArgumentParser):
         parser.add_argument("--apply_folder", type=Path,
                             help="Path to the inference files")
+        parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
+                            required=True,
+                            type=str, help="Model architecture")
         parser.add_argument("--metric", choices=["fscore", "ier"],
                             default="fscore")
         parser.add_argument("--model", type=Path, required=True,
@@ -209,7 +228,13 @@ class ScoreCommand(BaseCommand):
         for filepath in apply_folder.glob("*.rttm"):
             rttm_annots = load_rttm(filepath)
             annotations.update(rttm_annots)
-        model = Inference(args.model_path)
+        model = Model.from_pretrained(
+            Path(args.model_path),
+            strict=False,
+        )
+        vtc = cls.get_task(args)
+        # Dirty fix for the non-serialization of the task params
+        model.task = vtc
         pipeline = MultilabelDetection(segmentation=model,
                                        fscore=args.metric == "fscore")
         metric: BaseMetric = pipeline.get_metric()
