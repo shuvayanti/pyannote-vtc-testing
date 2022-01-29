@@ -67,7 +67,7 @@ class TrainCommand(BaseCommand):
                             type=str, help="Model architecture")
         parser.add_argument("--model_type", choices=["simple", "pyannet"],
                             required=True,
-                            type=str, help="Model architecture")
+                            type=str, help="Model model checkpoint")
         parser.add_argument("--restart", type=Path,
                             help="Continue with model path")
         parser.add_argument("--epoch", type=int, required=True,
@@ -130,7 +130,7 @@ class TuneCommand(BaseCommand):
                             help="Pyannote database")
         parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
                             required=True,
-                            type=str, help="Model architecture")
+                            type=str, help="Model model checkpoint")
         parser.add_argument("-m", "--model_path", type=Path, required=True,
                             help="Model checkpoint to tune pipeline with")
         parser.add_argument("-nit", "--n_iterations", type=int, default=50,
@@ -174,7 +174,7 @@ class ApplyCommand(BaseCommand):
                             help="Pyannote database")
         parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
                             required=True,
-                            type=str, help="Model architecture")
+                            type=str, help="Model model checkpoint")
         parser.add_argument("-m", "--model_path", type=Path, required=True,
                             help="Model checkpoint to run pipeline with")
         parser.add_argument("--params", type=Path,
@@ -186,21 +186,22 @@ class ApplyCommand(BaseCommand):
     def run(cls, args: Namespace):
         protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
         model = Model.from_pretrained(
-            Path(args.restart),
+            Path(args.model_path),
             strict=False,
         )
         vtc = cls.get_task(args)
         # Dirty fix for the non-serialization of the task params
         model.task = vtc
         pipeline = MultilabelDetection(segmentation=model)
-        pipeline.load_params(args.params)
+        params_path: Path = args.params if args.params is not None else args.exp_dir / "best_params.yml"
+        pipeline.load_params(params_path)
         apply_folder: Path = args.exp_dir / "apply/" if args.apply_folder is None else args.apply_folder
         apply_folder.mkdir(parents=True, exist_ok=True)
 
         for file in tqdm(list(protocol.test())):
             logging.info(f"Inference for file {file['uri']}")
             annotation: Annotation = pipeline(file)
-            with open(apply_folder / (file["uri"] + ".rttm"), "w") as rttm_file:
+            with open(apply_folder / (file["uri"].replace("/", "_") + ".rttm"), "w") as rttm_file:
                 annotation.write_rttm(rttm_file)
 
 
@@ -210,6 +211,9 @@ class ScoreCommand(BaseCommand):
 
     @classmethod
     def init_parser(cls, parser: ArgumentParser):
+        parser.add_argument("-p", "--protocol", type=str,
+                            default="VTCDebug.SpeakerDiarization.PoetryRecitalDiarization",
+                            help="Pyannote database")
         parser.add_argument("--apply_folder", type=Path,
                             help="Path to the inference files")
         parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
@@ -217,8 +221,8 @@ class ScoreCommand(BaseCommand):
                             type=str, help="Model architecture")
         parser.add_argument("--metric", choices=["fscore", "ier"],
                             default="fscore")
-        parser.add_argument("--model", type=Path, required=True,
-                            help="Model architecture")
+        parser.add_argument("--model_path", type=Path, required=True,
+                            help="Model model checkpoint")
 
     @classmethod
     def run(cls, args: Namespace):
