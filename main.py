@@ -137,6 +137,9 @@ class TuneCommand(BaseCommand):
                             help="Number of tuning iterations")
         parser.add_argument("--metric", choices=["fscore", "ier"],
                             default="fscore")
+        parser.add_argument("--params", type=Path, default=Path("best_params.yml"),
+                            help="Filename for param yaml file")
+
 
     @classmethod
     def run(cls, args: Namespace):
@@ -157,7 +160,7 @@ class TuneCommand(BaseCommand):
                        show_progress=True)
         best_params = optimizer.best_params
         logging.info(f"Best params: \n{best_params}")
-        params_filepath: Path = args.exp_dir / "best_params.yml"
+        params_filepath: Path = args.exp_dir / args.params
         logging.info(f"Saving params to {params_filepath}")
         pipeline.instantiate(best_params)
         pipeline.dump_params(params_filepath)
