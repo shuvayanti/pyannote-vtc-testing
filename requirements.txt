@@ -1,1 +1,2 @@
-pyannote.audio
+git+ssh://git@github.com/hadware/pyannote-audio.git@feat/vtc#egg=pyannote.audio
+git+ssh://git@github.com/pyannote/pyannote-pipeline@develope#egg=pyannote.pipeline

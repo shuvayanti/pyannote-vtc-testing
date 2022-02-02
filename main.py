@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Dict
 
 import torch
-from pyannote.audio import Inference
+import yaml
 from pyannote.audio import Model
 from pyannote.audio.models.segmentation import PyanNet
 from pyannote.audio.models.segmentation.debug import SimpleSegmentationModel
@@ -13,7 +13,7 @@ from pyannote.audio.pipelines import MultilabelDetection
 from pyannote.audio.tasks import VoiceTypeClassification
 from pyannote.core import Annotation
 from pyannote.database import FileFinder, get_protocol
-from pyannote.database.util import load_rttm
+from pyannote.database.util import load_rttm, LabelMapper
 from pyannote.metrics.base import BaseMetric
 from pyannote.pipeline import Optimizer
 from pytorch_lightning import Trainer
@@ -24,12 +24,16 @@ from tqdm import tqdm
 
 DEVICE = "gpu" if torch.cuda.is_available() else "cpu"
 
-VTC_DEBUG_CLASSES = {'classes': ["READER", "AGREER", "DISAGREER"],
-                     'unions': {"COMMENTERS": ["AGREER", "DISAGREER"]},
-                     'intersections': {}}
-BASAL_VOICE_CLASSES = {'classes': ["P", "NP"],
-                       'unions': {},
-                       'intersections': {}}
+CLASSES = {"vtcdebug": {'classes': ["READER", "AGREER", "DISAGREER"],
+                        'unions': {"COMMENTERS": ["AGREER", "DISAGREER"]},
+                        'intersections': {}},
+           "basal_voice": {'classes': ["P", "NP"],
+                           'unions': {},
+                           'intersections': {}},
+           "babytrain": {'classes': ["MAL", "FEM", "CHI", "KCHI"],
+                         'unions': {"SPEECH": ["MAL", "FEM", "CHI", "KCHI"]},
+                         'intersections': {}}
+           }
 
 
 class BaseCommand:
@@ -45,9 +49,20 @@ class BaseCommand:
         pass
 
     @classmethod
+    def get_protocol(cls, args: Namespace):
+        preprocessors = {
+            "audio": FileFinder()
+        }
+        if args.classes == "babytrain":
+            with open(Path(__file__).parent / "data/babytrain_mapping.yml") as mapping_file:
+                mapping_dict = yaml.safe_load(mapping_file)
+            preprocessors["annotation"] = LabelMapper(mapping_dict, keep_missing=True)
+        return get_protocol(args.protocol, preprocessors=preprocessors)
+
+    @classmethod
     def get_task(cls, args: Namespace):
-        protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
-        classes_kwargs = VTC_DEBUG_CLASSES if args.classes == "vtc_debug" else BASAL_VOICE_CLASSES
+        protocol = cls.get_protocol(args)
+        classes_kwargs = CLASSES[args.classes]
         return VoiceTypeClassification(protocol,
                                        **classes_kwargs,
                                        duration=2.00)
@@ -62,7 +77,7 @@ class TrainCommand(BaseCommand):
         parser.add_argument("-p", "--protocol", type=str,
                             default="VTCDebug.SpeakerDiarization.PoetryRecitalDiarization",
                             help="Pyannote database")
-        parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
+        parser.add_argument("--classes", choices=CLASSES.keys(),
                             required=True,
                             type=str, help="Model architecture")
         parser.add_argument("--model_type", choices=["simple", "pyannet"],
@@ -128,7 +143,7 @@ class TuneCommand(BaseCommand):
         parser.add_argument("-p", "--protocol", type=str,
                             default="VTCDebug.SpeakerDiarization.PoetryRecitalDiarization",
                             help="Pyannote database")
-        parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
+        parser.add_argument("--classes", choices=CLASSES.keys(),
                             required=True,
                             type=str, help="Model model checkpoint")
         parser.add_argument("-m", "--model_path", type=Path, required=True,
@@ -140,10 +155,9 @@ class TuneCommand(BaseCommand):
         parser.add_argument("--params", type=Path, default=Path("best_params.yml"),
                             help="Filename for param yaml file")
 
-
     @classmethod
     def run(cls, args: Namespace):
-        protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
+        protocol = cls.get_protocol(args)
         vtc = cls.get_task(args)
         model = Model.from_pretrained(
             Path(args.model_path),
@@ -175,7 +189,7 @@ class ApplyCommand(BaseCommand):
         parser.add_argument("-p", "--protocol", type=str,
                             default="VTCDebug.SpeakerDiarization.PoetryRecitalDiarization",
                             help="Pyannote database")
-        parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
+        parser.add_argument("--classes", choices=CLASSES.keys(),
                             required=True,
                             type=str, help="Model model checkpoint")
         parser.add_argument("-m", "--model_path", type=Path, required=True,
@@ -187,7 +201,7 @@ class ApplyCommand(BaseCommand):
 
     @classmethod
     def run(cls, args: Namespace):
-        protocol = get_protocol(args.protocol, preprocessors={"audio": FileFinder()})
+        protocol = cls.get_protocol(args)
         model = Model.from_pretrained(
             Path(args.model_path),
             strict=False,
@@ -219,7 +233,7 @@ class ScoreCommand(BaseCommand):
                             help="Pyannote database")
         parser.add_argument("--apply_folder", type=Path,
                             help="Path to the inference files")
-        parser.add_argument("--classes", choices=["vtcdebug", "basalvoice"],
+        parser.add_argument("--classes", choices=CLASSES.keys(),
                             required=True,
                             type=str, help="Model architecture")
         parser.add_argument("--metric", choices=["fscore", "ier"],
@@ -229,7 +243,7 @@ class ScoreCommand(BaseCommand):
 
     @classmethod
     def run(cls, args: Namespace):
-        protocol = get_protocol(args.protocol)
+        protocol = cls.get_protocol(args)
         apply_folder: Path = args.exp_dir / "apply/" if args.apply_folder is None else args.apply_folder
         annotations: Dict[str, Annotation] = {}
         for filepath in apply_folder.glob("*.rttm"):
