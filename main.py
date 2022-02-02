@@ -55,7 +55,7 @@ class BaseCommand:
         }
         if args.classes == "babytrain":
             with open(Path(__file__).parent / "data/babytrain_mapping.yml") as mapping_file:
-                mapping_dict = yaml.safe_load(mapping_file)
+                mapping_dict = yaml.safe_load(mapping_file)["mapping"]
             preprocessors["annotation"] = LabelMapper(mapping_dict, keep_missing=True)
         return get_protocol(args.protocol, preprocessors=preprocessors)
 
