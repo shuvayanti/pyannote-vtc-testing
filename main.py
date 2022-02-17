@@ -9,8 +9,8 @@ import yaml
 from pyannote.audio import Model
 from pyannote.audio.models.segmentation import PyanNet
 from pyannote.audio.models.segmentation.debug import SimpleSegmentationModel
-from pyannote.audio.pipelines import MultilabelDetection
-from pyannote.audio.tasks import VoiceTypeClassification
+from pyannote.audio.pipelines import MultilabelDetectionPipeline
+from pyannote.audio.tasks.segmentation.multilabel_detection import MultilabelDetection, VoiceTypeClassifierPreprocessor
 from pyannote.core import Annotation
 from pyannote.database import FileFinder, get_protocol
 from pyannote.database.util import load_rttm, LabelMapper
@@ -50,10 +50,13 @@ class BaseCommand:
 
     @classmethod
     def get_protocol(cls, args: Namespace):
+        classes_kwargs = CLASSES[args.classes]
         preprocessors = {
-            "audio": FileFinder()
+            "audio": FileFinder(),
+            "annotation": VoiceTypeClassifierPreprocessor(**classes_kwargs)
         }
         if args.classes == "babytrain":
+            # TODO: chain preprocessors once pyannote db supports this
             with open(Path(__file__).parent / "data/babytrain_mapping.yml") as mapping_file:
                 mapping_dict = yaml.safe_load(mapping_file)["mapping"]
             preprocessors["annotation"] = LabelMapper(mapping_dict, keep_missing=True)
@@ -62,10 +65,7 @@ class BaseCommand:
     @classmethod
     def get_task(cls, args: Namespace):
         protocol = cls.get_protocol(args)
-        classes_kwargs = CLASSES[args.classes]
-        return VoiceTypeClassification(protocol,
-                                       **classes_kwargs,
-                                       duration=2.00)
+        return MultilabelDetection(protocol, duration=2.00)
 
 
 class TrainCommand(BaseCommand):
@@ -123,7 +123,7 @@ class TrainCommand(BaseCommand):
             monitor=value_to_monitor,
             mode=min_or_max,
             min_delta=0.0,
-            patience=10.,
+            patience=10,
             strict=True,
             verbose=False)
 
@@ -158,15 +158,13 @@ class TuneCommand(BaseCommand):
     @classmethod
     def run(cls, args: Namespace):
         protocol = cls.get_protocol(args)
-        vtc = cls.get_task(args)
         model = Model.from_pretrained(
             Path(args.model_path),
             strict=False,
         )
         # Dirty fix for the non-serialization of the task params
-        model.task = vtc
-        pipeline = MultilabelDetection(segmentation=model,
-                                       fscore=args.metric == "fscore")
+        pipeline = MultilabelDetectionPipeline(segmentation=model,
+                                               fscore=args.metric == "fscore")
         validation_files = list(protocol.development())
         optimizer = Optimizer(pipeline)
         optimizer.tune(validation_files,
@@ -206,10 +204,7 @@ class ApplyCommand(BaseCommand):
             Path(args.model_path),
             strict=False,
         )
-        vtc = cls.get_task(args)
-        # Dirty fix for the non-serialization of the task params
-        model.task = vtc
-        pipeline = MultilabelDetection(segmentation=model)
+        pipeline = MultilabelDetectionPipeline(segmentation=model)
         params_path: Path = args.params if args.params is not None else args.exp_dir / "best_params.yml"
         pipeline.load_params(params_path)
         apply_folder: Path = args.exp_dir / "apply/" if args.apply_folder is None else args.apply_folder
@@ -253,10 +248,7 @@ class ScoreCommand(BaseCommand):
             Path(args.model_path),
             strict=False,
         )
-        vtc = cls.get_task(args)
-        # Dirty fix for the non-serialization of the task params
-        model.task = vtc
-        pipeline = MultilabelDetection(segmentation=model,
+        pipeline = MultilabelDetectionPipeline(segmentation=model,
                                        fscore=args.metric == "fscore")
         metric: BaseMetric = pipeline.get_metric()
 
