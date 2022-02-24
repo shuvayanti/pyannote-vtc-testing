@@ -2,7 +2,7 @@ import argparse
 import logging
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 import torch
 import yaml
@@ -12,7 +12,8 @@ from pyannote.audio.models.segmentation.debug import SimpleSegmentationModel
 from pyannote.audio.pipelines import MultilabelDetectionPipeline
 from pyannote.audio.tasks.segmentation.multilabel_detection import MultilabelDetection, VoiceTypeClassifierPreprocessor
 from pyannote.core import Annotation
-from pyannote.database import FileFinder, get_protocol
+from pyannote.database import FileFinder, get_protocol, ProtocolFile
+from pyannote.database.protocol.protocol import Preprocessor
 from pyannote.database.util import load_rttm, LabelMapper
 from pyannote.metrics.base import BaseMetric
 from pyannote.pipeline import Optimizer
@@ -21,6 +22,23 @@ from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 from tqdm import tqdm
+
+
+class ProcessorChain(Preprocessor):
+
+    def __init__(self, preprocessors: List[Preprocessor], key: str):
+        assert preprocessors
+        self.procs = preprocessors
+        self.key = key
+
+    def __call__(self, file: ProtocolFile):
+        file_cp = ProtocolFile(precomputed=file)
+        for proc in self.procs:
+            out = proc(file_cp)
+            file_cp[self.key] = out
+
+        return out
+
 
 DEVICE = "gpu" if torch.cuda.is_available() else "cpu"
 
@@ -51,15 +69,18 @@ class BaseCommand:
     @classmethod
     def get_protocol(cls, args: Namespace):
         classes_kwargs = CLASSES[args.classes]
+        vtc_preprocessor = VoiceTypeClassifierPreprocessor(**classes_kwargs)
         preprocessors = {
             "audio": FileFinder(),
-            "annotation": VoiceTypeClassifierPreprocessor(**classes_kwargs)
+            "annotation": vtc_preprocessor
         }
         if args.classes == "babytrain":
-            # TODO: chain preprocessors once pyannote db supports this
             with open(Path(__file__).parent / "data/babytrain_mapping.yml") as mapping_file:
                 mapping_dict = yaml.safe_load(mapping_file)["mapping"]
-            preprocessors["annotation"] = LabelMapper(mapping_dict, keep_missing=True)
+            preprocessors["annotation"] = ProcessorChain([
+                LabelMapper(mapping_dict, keep_missing=True),
+                vtc_preprocessor
+            ], key="annotation")
         return get_protocol(args.protocol, preprocessors=preprocessors)
 
     @classmethod
@@ -249,7 +270,7 @@ class ScoreCommand(BaseCommand):
             strict=False,
         )
         pipeline = MultilabelDetectionPipeline(segmentation=model,
-                                       fscore=args.metric == "fscore")
+                                               fscore=args.metric == "fscore")
         metric: BaseMetric = pipeline.get_metric()
 
         for file in protocol.test():
