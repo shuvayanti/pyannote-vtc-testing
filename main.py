@@ -2,17 +2,19 @@ import argparse
 import logging
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import Dict
+from typing import Dict, List
 
 import torch
 import yaml
+import pandas as pd
 from pyannote.audio import Model
 from pyannote.audio.models.segmentation import PyanNet
 from pyannote.audio.models.segmentation.debug import SimpleSegmentationModel
-from pyannote.audio.pipelines import MultilabelDetection
-from pyannote.audio.tasks import VoiceTypeClassification
+from pyannote.audio.pipelines import MultilabelDetectionPipeline
+from pyannote.audio.tasks.segmentation.multilabel_detection import MultilabelDetection, VoiceTypeClassifierPreprocessor
 from pyannote.core import Annotation
-from pyannote.database import FileFinder, get_protocol
+from pyannote.database import FileFinder, get_protocol, ProtocolFile
+from pyannote.database.protocol.protocol import Preprocessor
 from pyannote.database.util import load_rttm, LabelMapper
 from pyannote.metrics.base import BaseMetric
 from pyannote.pipeline import Optimizer
@@ -21,6 +23,23 @@ from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 from tqdm import tqdm
+
+
+class ProcessorChain(Preprocessor):
+
+    def __init__(self, preprocessors: List[Preprocessor], key: str):
+        assert preprocessors
+        self.procs = preprocessors
+        self.key = key
+
+    def __call__(self, file: ProtocolFile):
+        file_cp = ProtocolFile(precomputed=file)
+        for proc in self.procs:
+            out = proc(file_cp)
+            file_cp[self.key] = out
+
+        return out
+
 
 DEVICE = "gpu" if torch.cuda.is_available() else "cpu"
 
@@ -50,22 +69,25 @@ class BaseCommand:
 
     @classmethod
     def get_protocol(cls, args: Namespace):
+        classes_kwargs = CLASSES[args.classes]
+        vtc_preprocessor = VoiceTypeClassifierPreprocessor(**classes_kwargs)
         preprocessors = {
-            "audio": FileFinder()
+            "audio": FileFinder(),
+            "annotation": vtc_preprocessor
         }
         if args.classes == "babytrain":
             with open(Path(__file__).parent / "data/babytrain_mapping.yml") as mapping_file:
                 mapping_dict = yaml.safe_load(mapping_file)["mapping"]
-            preprocessors["annotation"] = LabelMapper(mapping_dict, keep_missing=True)
+            preprocessors["annotation"] = ProcessorChain([
+                LabelMapper(mapping_dict, keep_missing=True),
+                vtc_preprocessor
+            ], key="annotation")
         return get_protocol(args.protocol, preprocessors=preprocessors)
 
     @classmethod
     def get_task(cls, args: Namespace):
         protocol = cls.get_protocol(args)
-        classes_kwargs = CLASSES[args.classes]
-        return VoiceTypeClassification(protocol,
-                                       **classes_kwargs,
-                                       duration=2.00)
+        return MultilabelDetection(protocol, duration=2.00)
 
 
 class TrainCommand(BaseCommand):
@@ -83,8 +105,8 @@ class TrainCommand(BaseCommand):
         parser.add_argument("--model_type", choices=["simple", "pyannet"],
                             required=True,
                             type=str, help="Model model checkpoint")
-        parser.add_argument("--restart", type=Path,
-                            help="Continue with model path")
+        parser.add_argument("--resume", action="store_true",
+                            help="Resume from last checkpoint")
         parser.add_argument("--epoch", type=int, required=True,
                             help="Number of train epoch")
 
@@ -93,44 +115,46 @@ class TrainCommand(BaseCommand):
 
         vtc = cls.get_task(args)
 
-        if args.restart is None:
-            if args.model_type == "simple":
-                model = SimpleSegmentationModel(task=vtc)
-            else:
-                model = PyanNet(task=vtc)
+        if args.model_type == "simple":
+            model = SimpleSegmentationModel(task=vtc)
         else:
-            model = Model.from_pretrained(
-                Path(args.restart),
-                strict=False,
-            )
+            model = PyanNet(task=vtc)
 
         value_to_monitor, min_or_max = vtc.val_monitor
 
         checkpoints_path: Path = args.exp_dir / "checkpoints/"
         checkpoints_path.mkdir(parents=True, exist_ok=True)
 
-        model_checkpoint = ModelCheckpoint(
-            monitor=value_to_monitor,
-            mode=min_or_max,
-            save_top_k=5,
-            every_n_epochs=1,
-            save_last=True,
-            dirpath=checkpoints_path,
-            filename=f"{{epoch}}-{{{value_to_monitor}:.6f}}",
-            verbose=True)
+        checkpoints_kwargs = {
+            'monitor': value_to_monitor,
+            'mode': min_or_max,
+            'save_top_k': 5,
+            'every_n_epochs': 1,
+            'save_last': True,
+            'dirpath': checkpoints_path,
+            'filename': f"{{epoch}}-{{{value_to_monitor}:.6f}}",
+            'verbose': True}
+
+        model_checkpoint = ModelCheckpoint(**checkpoints_kwargs)
 
         early_stopping = EarlyStopping(
             monitor=value_to_monitor,
             mode=min_or_max,
             min_delta=0.0,
-            patience=10.,
+            patience=10,
             strict=True,
             verbose=False)
 
         logger = TensorBoardLogger(args.exp_dir,
                                    name="VTCTest", version="", log_graph=False)
+        trainer_kwargs = {'devices': 1,
+                          'accelerator': "gpu",
+                          'callbacks': [model_checkpoint, early_stopping],
+                          'logger': logger}
+        if args.resume:
+            trainer_kwargs["resume_from_checkpoint"] = checkpoints_path / "last.ckpt"
 
-        trainer = Trainer(devices=1, accelerator="gpu", callbacks=[model_checkpoint, early_stopping], logger=logger)
+        trainer = Trainer(**trainer_kwargs)
         trainer.fit(model)
 
 
@@ -158,15 +182,14 @@ class TuneCommand(BaseCommand):
     @classmethod
     def run(cls, args: Namespace):
         protocol = cls.get_protocol(args)
-        vtc = cls.get_task(args)
         model = Model.from_pretrained(
             Path(args.model_path),
             strict=False,
         )
         # Dirty fix for the non-serialization of the task params
-        model.task = vtc
-        pipeline = MultilabelDetection(segmentation=model,
-                                       fscore=args.metric == "fscore")
+        pipeline = MultilabelDetectionPipeline(segmentation=model,
+                                               fscore=args.metric == "fscore")
+        # pipeline.instantiate(pipeline.default_parameters())
         validation_files = list(protocol.development())
         optimizer = Optimizer(pipeline)
         optimizer.tune(validation_files,
@@ -206,10 +229,7 @@ class ApplyCommand(BaseCommand):
             Path(args.model_path),
             strict=False,
         )
-        vtc = cls.get_task(args)
-        # Dirty fix for the non-serialization of the task params
-        model.task = vtc
-        pipeline = MultilabelDetection(segmentation=model)
+        pipeline = MultilabelDetectionPipeline(segmentation=model)
         params_path: Path = args.params if args.params is not None else args.exp_dir / "best_params.yml"
         pipeline.load_params(params_path)
         apply_folder: Path = args.exp_dir / "apply/" if args.apply_folder is None else args.apply_folder
@@ -240,6 +260,8 @@ class ScoreCommand(BaseCommand):
                             default="fscore")
         parser.add_argument("--model_path", type=Path, required=True,
                             help="Model model checkpoint")
+        parser.add_argument("--report_path", type=Path, required=True,
+                            help="Path to report csv")
 
     @classmethod
     def run(cls, args: Namespace):
@@ -253,11 +275,8 @@ class ScoreCommand(BaseCommand):
             Path(args.model_path),
             strict=False,
         )
-        vtc = cls.get_task(args)
-        # Dirty fix for the non-serialization of the task params
-        model.task = vtc
-        pipeline = MultilabelDetection(segmentation=model,
-                                       fscore=args.metric == "fscore")
+        pipeline = MultilabelDetectionPipeline(segmentation=model,
+                                               fscore=args.metric == "fscore")
         metric: BaseMetric = pipeline.get_metric()
 
         for file in protocol.test():
@@ -266,7 +285,9 @@ class ScoreCommand(BaseCommand):
             inference = annotations[file["uri"]]
             metric(file["annotation"], inference, file["annotated"])
 
-        metric.report(display=True)
+        df: pd.DataFrame = metric.report(display=True)
+        if args.report_path is not None:
+            df.to_csv(args.report_path)
 
 
 commands = [TrainCommand, TuneCommand, ApplyCommand, ScoreCommand]

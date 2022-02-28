@@ -11,5 +11,7 @@ conda activate pyannote-vtc-v2
 python main.py runs/basal_voice/ score \
 -p BasalVoice.SpeakerDiarization.InterviewDiarizationProtocol \
 --model_path runs/basal_voice/checkpoints/last.ckpt \
---classes basalvoice \
---metric ier
+--classes basal_voice \
+--metric ier \
+--apply_folder runs/basal_voice/apply_ier/ \
+--report_path runs/baal_voice/results/ier_tuned_ier.csv
