@@ -6,6 +6,7 @@ from typing import Dict, List
 
 import torch
 import yaml
+import pandas as pd
 from pyannote.audio import Model
 from pyannote.audio.models.segmentation import PyanNet
 from pyannote.audio.models.segmentation.debug import SimpleSegmentationModel
@@ -104,8 +105,8 @@ class TrainCommand(BaseCommand):
         parser.add_argument("--model_type", choices=["simple", "pyannet"],
                             required=True,
                             type=str, help="Model model checkpoint")
-        parser.add_argument("--restart", type=Path,
-                            help="Continue with model path")
+        parser.add_argument("--resume", action="store_true",
+                            help="Resume from last checkpoint")
         parser.add_argument("--epoch", type=int, required=True,
                             help="Number of train epoch")
 
@@ -114,31 +115,27 @@ class TrainCommand(BaseCommand):
 
         vtc = cls.get_task(args)
 
-        if args.restart is None:
-            if args.model_type == "simple":
-                model = SimpleSegmentationModel(task=vtc)
-            else:
-                model = PyanNet(task=vtc)
+        if args.model_type == "simple":
+            model = SimpleSegmentationModel(task=vtc)
         else:
-            model = Model.from_pretrained(
-                Path(args.restart),
-                strict=False,
-            )
+            model = PyanNet(task=vtc)
 
         value_to_monitor, min_or_max = vtc.val_monitor
 
         checkpoints_path: Path = args.exp_dir / "checkpoints/"
         checkpoints_path.mkdir(parents=True, exist_ok=True)
 
-        model_checkpoint = ModelCheckpoint(
-            monitor=value_to_monitor,
-            mode=min_or_max,
-            save_top_k=5,
-            every_n_epochs=1,
-            save_last=True,
-            dirpath=checkpoints_path,
-            filename=f"{{epoch}}-{{{value_to_monitor}:.6f}}",
-            verbose=True)
+        checkpoints_kwargs = {
+            'monitor': value_to_monitor,
+            'mode': min_or_max,
+            'save_top_k': 5,
+            'every_n_epochs': 1,
+            'save_last': True,
+            'dirpath': checkpoints_path,
+            'filename': f"{{epoch}}-{{{value_to_monitor}:.6f}}",
+            'verbose': True}
+
+        model_checkpoint = ModelCheckpoint(**checkpoints_kwargs)
 
         early_stopping = EarlyStopping(
             monitor=value_to_monitor,
@@ -150,8 +147,14 @@ class TrainCommand(BaseCommand):
 
         logger = TensorBoardLogger(args.exp_dir,
                                    name="VTCTest", version="", log_graph=False)
+        trainer_kwargs = {'devices': 1,
+                          'accelerator': "gpu",
+                          'callbacks': [model_checkpoint, early_stopping],
+                          'logger': logger}
+        if args.resume:
+            trainer_kwargs["resume_from_checkpoint"] = checkpoints_path / "last.ckpt"
 
-        trainer = Trainer(devices=1, accelerator="gpu", callbacks=[model_checkpoint, early_stopping], logger=logger)
+        trainer = Trainer(**trainer_kwargs)
         trainer.fit(model)
 
 
@@ -186,6 +189,7 @@ class TuneCommand(BaseCommand):
         # Dirty fix for the non-serialization of the task params
         pipeline = MultilabelDetectionPipeline(segmentation=model,
                                                fscore=args.metric == "fscore")
+        # pipeline.instantiate(pipeline.default_parameters())
         validation_files = list(protocol.development())
         optimizer = Optimizer(pipeline)
         optimizer.tune(validation_files,
@@ -256,6 +260,8 @@ class ScoreCommand(BaseCommand):
                             default="fscore")
         parser.add_argument("--model_path", type=Path, required=True,
                             help="Model model checkpoint")
+        parser.add_argument("--report_path", type=Path, required=True,
+                            help="Path to report csv")
 
     @classmethod
     def run(cls, args: Namespace):
@@ -279,7 +285,9 @@ class ScoreCommand(BaseCommand):
             inference = annotations[file["uri"]]
             metric(file["annotation"], inference, file["annotated"])
 
-        metric.report(display=True)
+        df: pd.DataFrame = metric.report(display=True)
+        if args.report_path is not None:
+            df.to_csv(args.report_path)
 
 
 commands = [TrainCommand, TuneCommand, ApplyCommand, ScoreCommand]

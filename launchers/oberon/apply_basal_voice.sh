@@ -11,5 +11,6 @@ conda activate pyannote-vtc-v2
 python main.py runs/basal_voice/ apply \
 -p BasalVoice.SpeakerDiarization.InterviewDiarizationProtocol \
 --model_path runs/basal_voice/checkpoints/last.ckpt \
---classes basalvoice \
---apply_folder runs/basal_voice/apply/
+--classes basal_voice \
+--apply_folder runs/basal_voice/apply_ier/ \
+--params runs/basal_voice/best_params_ier.yml
