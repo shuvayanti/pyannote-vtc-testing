@@ -2,7 +2,7 @@ import argparse
 import logging
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
-from typing import Dict, List
+from typing import Dict, List, Any
 
 import torch
 import yaml
@@ -10,9 +10,10 @@ import pandas as pd
 from pyannote.audio import Model
 from pyannote.audio.models.segmentation import PyanNet
 from pyannote.audio.models.segmentation.debug import SimpleSegmentationModel
-from pyannote.audio.pipelines import MultilabelDetectionPipeline
-from pyannote.audio.tasks.segmentation.multilabel_detection import MultilabelDetection, VoiceTypeClassifierPreprocessor
+from pyannote.audio.pipelines import MultilabelDetection as MultilabelDetectionPipeline
+from pyannote.audio.tasks.segmentation.multilabel_detection import MultilabelDetection
 from pyannote.core import Annotation
+from pyannote.audio.utils.preprocessors import DeriveMetaLabels
 from pyannote.database import FileFinder, get_protocol, ProtocolFile
 from pyannote.database.protocol.protocol import Preprocessor
 from pyannote.database.util import load_rttm, LabelMapper
@@ -25,15 +26,14 @@ from pytorch_lightning.loggers import TensorBoardLogger
 from tqdm import tqdm
 
 
-class ProcessorChain(Preprocessor):
+class ProcessorChain:
 
     def __init__(self, preprocessors: List[Preprocessor], key: str):
-        assert preprocessors
         self.procs = preprocessors
         self.key = key
 
     def __call__(self, file: ProtocolFile):
-        file_cp = ProtocolFile(precomputed=file)
+        file_cp: Dict[str, Any] = abs(file)
         for proc in self.procs:
             out = proc(file_cp)
             file_cp[self.key] = out
@@ -70,7 +70,7 @@ class BaseCommand:
     @classmethod
     def get_protocol(cls, args: Namespace):
         classes_kwargs = CLASSES[args.classes]
-        vtc_preprocessor = VoiceTypeClassifierPreprocessor(**classes_kwargs)
+        vtc_preprocessor = DeriveMetaLabels(**classes_kwargs)
         preprocessors = {
             "audio": FileFinder(),
             "annotation": vtc_preprocessor
