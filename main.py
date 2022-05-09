@@ -87,7 +87,9 @@ class BaseCommand:
     @classmethod
     def get_task(cls, args: Namespace):
         protocol = cls.get_protocol(args)
-        return MultilabelDetection(protocol, duration=2.00)
+        task = MultilabelDetection(protocol, duration=2.00)
+        task.setup()
+        return task
 
 
 class TrainCommand(BaseCommand):
