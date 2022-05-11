@@ -289,6 +289,7 @@ class ScoreCommand(BaseCommand):
 
         df: pd.DataFrame = metric.report(display=True)
         if args.report_path is not None:
+            args.report_path.parent.mkdir(parents=True, exist_ok=True) 
             df.to_csv(args.report_path)
 
 
