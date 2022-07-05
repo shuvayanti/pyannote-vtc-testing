@@ -10,8 +10,8 @@ import pandas as pd
 from pyannote.audio import Model
 from pyannote.audio.models.segmentation import PyanNet
 from pyannote.audio.models.segmentation.debug import SimpleSegmentationModel
-from pyannote.audio.pipelines import MultilabelDetection as MultilabelDetectionPipeline
-from pyannote.audio.tasks.segmentation.multilabel_detection import MultilabelDetection
+from pyannote.audio.pipelines import MultiLabelSegmentation as MultilabelSegmentationPipeline
+from pyannote.audio.tasks.segmentation.multilabel import MultiLabelSegmentation
 from pyannote.core import Annotation
 from pyannote.audio.utils.preprocessors import DeriveMetaLabels
 from pyannote.database import FileFinder, get_protocol, ProtocolFile
@@ -87,7 +87,7 @@ class BaseCommand:
     @classmethod
     def get_task(cls, args: Namespace):
         protocol = cls.get_protocol(args)
-        return MultilabelDetection(protocol, duration=2.00)
+        return MultiLabelSegmentation(protocol, duration=2.00)
 
 
 class TrainCommand(BaseCommand):
@@ -187,8 +187,8 @@ class TuneCommand(BaseCommand):
             strict=False,
         )
         # Dirty fix for the non-serialization of the task params
-        pipeline = MultilabelDetectionPipeline(segmentation=model,
-                                               fscore=args.metric == "fscore")
+        pipeline = MultilabelSegmentationPipeline(segmentation=model,
+                                                  fscore=args.metric == "fscore")
         # pipeline.instantiate(pipeline.default_parameters())
         validation_files = list(protocol.development())
         optimizer = Optimizer(pipeline)
@@ -229,7 +229,7 @@ class ApplyCommand(BaseCommand):
             Path(args.model_path),
             strict=False,
         )
-        pipeline = MultilabelDetectionPipeline(segmentation=model)
+        pipeline = MultilabelSegmentationPipeline(segmentation=model)
         params_path: Path = args.params if args.params is not None else args.exp_dir / "best_params.yml"
         pipeline.load_params(params_path)
         apply_folder: Path = args.exp_dir / "apply/" if args.apply_folder is None else args.apply_folder
@@ -275,8 +275,8 @@ class ScoreCommand(BaseCommand):
             Path(args.model_path),
             strict=False,
         )
-        pipeline = MultilabelDetectionPipeline(segmentation=model,
-                                               fscore=args.metric == "fscore")
+        pipeline = MultilabelSegmentationPipeline(segmentation=model,
+                                                  fscore=args.metric == "fscore")
         metric: BaseMetric = pipeline.get_metric()
 
         for file in protocol.test():
