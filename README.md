@@ -3,9 +3,8 @@ Testing scripts for pyannote VTC
 
 ## Setup
 
-This requires the pyannote version on branch `feat/vtc` of the repo 
-`git@github.com:hadware/pyannote-audio/`, as well as the latest commit on 
-branch `develop` of `git@github.com:pyannote/pyannote-pipeline`.
+This requires the pyannote version on branch `develop` of the repo 
+`git@github.com:bootphon/pyannote-audio/`.
 
 ```shell
 git clone git@github.com:hadware/pyannote-vtc-testing/
