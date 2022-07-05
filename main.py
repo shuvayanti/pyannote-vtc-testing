@@ -87,7 +87,9 @@ class BaseCommand:
     @classmethod
     def get_task(cls, args: Namespace):
         protocol = cls.get_protocol(args)
-        return MultiLabelSegmentation(protocol, duration=2.00)
+        task = MultiLabelSegmentation(protocol, duration=2.00)
+        task.setup()
+        return task
 
 
 class TrainCommand(BaseCommand):
@@ -287,6 +289,7 @@ class ScoreCommand(BaseCommand):
 
         df: pd.DataFrame = metric.report(display=True)
         if args.report_path is not None:
+            args.report_path.parent.mkdir(parents=True, exist_ok=True) 
             df.to_csv(args.report_path)
 
 
