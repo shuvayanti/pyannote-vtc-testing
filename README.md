@@ -3,17 +3,26 @@ Testing scripts for pyannote VTC
 
 ## Setup
 
-This requires the pyannote version on branch `develop` of the repo 
-`git@github.com:bootphon/pyannote-audio/`.
-
+First of all, create your environment and install pyannote audio :
 ```shell
-git clone git@github.com:hadware/pyannote-vtc-testing/
-cd pyannote-vtc-testing/
-# create a venv (tested on python3.8)
-python3.8 -m venv venv/
-. venv/bin/activate
+conda create -n pyannote python=3.8
+conda activate pyannote
+conda install pytorch==1.11.0 torchvision==0.12.0 torchaudio==0.11.0 -c pytorch
+
+git clone https://github.com/pyannote/pyannote-audio.git
+cd pyannote-audio
+pip install -e .
+```
+
+Then, install this experimental repository :
+```shell
+git clone https://github.com/marianne-m/pyannote-vtc-testing.git
+cd pyannote-vtc-testing
 pip install -r requirements.txt
 ```
+
+Make sure you have a `database.yml` file in `~/.pyannote`.
+
 
 ## Usage
 
