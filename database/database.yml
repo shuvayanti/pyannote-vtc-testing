@@ -1,0 +1,158 @@
+Databases:
+  BBT2: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/{uri}.wav
+Protocols:
+  BBT2:
+    SpeakerDiarization:
+      war2:
+        train:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/war2.train.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/war2.train.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/train/war2.train.lst
+        development:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/war2.dev.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/war2.dev.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/dev/war2.dev.lst
+      vanuatu:
+        train:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/vanuatu.train.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/vanuatu.train.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/train/vanuatu.train.lst
+        development:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/vanuatu.dev.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/vanuatu.dev.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/dev/vanuatu.dev.lst
+        test:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/vanuatu.test.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/vanuatu.test.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/test/vanuatu.test.lst
+      tsimane:
+        train:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/tsimane.train.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/tsimane.train.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/train/tsimane.train.lst
+        development:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/tsimane.dev.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/tsimane.dev.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/dev/tsimane.dev.lst
+        test:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/tsimane.test.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/tsimane.test.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/test/tsimane.test.lst
+      tsay:
+        train:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/tsay.train.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/tsay.train.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/train/tsay.train.lst
+        development:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/tsay.dev.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/tsay.dev.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/dev/tsay.dev.lst
+        test:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/tsay.test.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/tsay.test.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/test/tsay.test.lst
+      paido:
+        train:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/paido.train.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/paido.train.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/train/paido.train.lst
+        development:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/paido.dev.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/paido.dev.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/dev/paido.dev.lst
+        test:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/paido.test.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/paido.test.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/test/paido.test.lst
+      namibia:
+        train:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/namibia.train.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/namibia.train.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/train/namibia.train.lst
+        development:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/namibia.dev.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/namibia.dev.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/dev/namibia.dev.lst
+        test:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/namibia.test.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/namibia.test.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/test/namibia.test.lst
+      lena:
+        train:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/lena.train.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/lena.train.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/train/lena.train.lst
+        development:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/lena.dev.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/lena.dev.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/dev/lena.dev.lst
+        test:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/lena.test.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/lena.test.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/test/lena.test.lst
+      aclew:
+        train:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/aclew.train.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/aclew.train.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/train/aclew.train.lst
+        development:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/aclew.dev.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/aclew.dev.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/dev/aclew.dev.lst
+        test:
+          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/aclew.test.uem
+          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/aclew.test.rttm
+          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/test/aclew.test.lst
+  X:
+    SpeakerDiarization:   
+      BBT2:
+        train:
+          BBT2.SpeakerDiarization.war2:
+          - train
+          BBT2.SpeakerDiarization.vanuatu:
+          - train
+          BBT2.SpeakerDiarization.tsimane:
+          - train
+          BBT2.SpeakerDiarization.tsay:
+          - train
+          BBT2.SpeakerDiarization.paido:
+          - train
+          BBT2.SpeakerDiarization.namibia:
+          - train
+          BBT2.SpeakerDiarization.lena:
+          - train
+          BBT2.SpeakerDiarization.aclew:
+          - train
+        development:
+          BBT2.SpeakerDiarization.war2:
+          - development
+          BBT2.SpeakerDiarization.vanuatu:
+          - development
+          BBT2.SpeakerDiarization.tsimane:
+          - development
+          BBT2.SpeakerDiarization.tsay:
+          - development
+          BBT2.SpeakerDiarization.paido:
+          - development
+          BBT2.SpeakerDiarization.namibia:
+          - development
+          BBT2.SpeakerDiarization.lena:
+          - development
+          BBT2.SpeakerDiarization.aclew:
+          - development
+        test:
+          BBT2.SpeakerDiarization.vanuatu:
+          - test
+          BBT2.SpeakerDiarization.tsimane:
+          - test
+          BBT2.SpeakerDiarization.tsay:
+          - test
+          BBT2.SpeakerDiarization.paido:
+          - test
+          BBT2.SpeakerDiarization.namibia:
+          - test
+          BBT2.SpeakerDiarization.lena:
+          - test
+          BBT2.SpeakerDiarization.aclew:
+          - test
+
