@@ -16,7 +16,7 @@ pip install -e .
 
 Then, install this experimental repository :
 ```shell
-git clone https://github.com/marianne-m/pyannote-vtc-testing.git
+git clone https://github.com/shuvayanti/pyannote-vtc-testing.git
 ```
 
 Make sure you have a `database.yml` file in `~/.pyannote`.
