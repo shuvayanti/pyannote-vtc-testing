@@ -130,7 +130,7 @@ class TrainCommand(BaseCommand):
         checkpoints_kwargs = {
             'monitor': value_to_monitor,
             'mode': min_or_max,
-            'save_top_k': 5,
+            'save_top_k': 10,
             'every_n_epochs': 1,
             'save_last': True,
             'dirpath': checkpoints_path,
@@ -145,14 +145,15 @@ class TrainCommand(BaseCommand):
             min_delta=0.0,
             patience=10,
             strict=True,
-            verbose=False)
+            verbose=True)
 
         logger = TensorBoardLogger(args.exp_dir,
                                    name="VTCTest", version="", log_graph=False)
         trainer_kwargs = {'devices': 1,
                           'accelerator': "gpu",
-                          'callbacks': [model_checkpoint, early_stopping],
-                          'logger': logger}
+                          'callbacks': [model_checkpoint], #, early_stopping],
+                          'logger': logger,
+                          'max_epochs':args.epoch}
         if args.resume:
             trainer_kwargs["resume_from_checkpoint"] = checkpoints_path / "last.ckpt"
 
