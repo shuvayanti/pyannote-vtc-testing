@@ -51,19 +51,6 @@ Protocols:
           annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/tsay.test.uem
           annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/tsay.test.rttm
           uri: /scratch2/mmetais/vtc2.0/BBT2_lst/test/tsay.test.lst
-      paido:
-        train:
-          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/paido.train.uem
-          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/paido.train.rttm
-          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/train/paido.train.lst
-        development:
-          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/paido.dev.uem
-          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/dev/paido.dev.rttm
-          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/dev/paido.dev.lst
-        test:
-          annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/paido.test.uem
-          annotation: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/test/paido.test.rttm
-          uri: /scratch2/mmetais/vtc2.0/BBT2_lst/test/paido.test.lst
       namibia:
         train:
           annotated: /scratch2/mlavechin/VoiceTypeClassifierPaper/DATA/BabyTrain_full_resplitted2/train/namibia.train.uem
@@ -115,8 +102,6 @@ Protocols:
           - train
           BBT2.SpeakerDiarization.tsay:
           - train
-          BBT2.SpeakerDiarization.paido:
-          - train
           BBT2.SpeakerDiarization.namibia:
           - train
           BBT2.SpeakerDiarization.lena:
@@ -132,8 +117,6 @@ Protocols:
           - development
           BBT2.SpeakerDiarization.tsay:
           - development
-          BBT2.SpeakerDiarization.paido:
-          - development
           BBT2.SpeakerDiarization.namibia:
           - development
           BBT2.SpeakerDiarization.lena:
@@ -146,8 +129,6 @@ Protocols:
           BBT2.SpeakerDiarization.tsimane:
           - test
           BBT2.SpeakerDiarization.tsay:
-          - test
-          BBT2.SpeakerDiarization.paido:
           - test
           BBT2.SpeakerDiarization.namibia:
           - test
