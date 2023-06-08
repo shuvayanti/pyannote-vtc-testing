@@ -82,6 +82,10 @@ class BaseCommand:
                 LabelMapper(mapping_dict, keep_missing=True),
                 vtc_preprocessor
             ], key="annotation")
+        elif args.classes == "train-superdataset":
+            preprocessors["annotation"] = ProcessorChain([
+                vtc_preprocessor
+            ], key="annotation")
         return get_protocol(args.protocol, preprocessors=preprocessors)
 
     @classmethod
