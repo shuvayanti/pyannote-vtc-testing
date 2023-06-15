@@ -53,9 +53,8 @@ CLASSES = {"vtcdebug": {'classes': ["READER", "AGREER", "DISAGREER"],
                          'unions': {"SPEECH": ["MAL", "FEM", "CHI", "KCHI"]},
                          'intersections': {}},
             "dataset": {'classes': ["MAL", "FEM", "CHI", "OCH"],
-                         'unions': {"SPEECH": ["MAL", "FEM", "CHI", "OCH"]},
                          'intersections': {}}
-           }
+            }
 
 
 class BaseCommand:
@@ -85,7 +84,7 @@ class BaseCommand:
                 LabelMapper(mapping_dict, keep_missing=True),
                 vtc_preprocessor
             ], key="annotation")
-        elif args.classes == "train-superdataset":
+        elif args.classes == "dataset":
             preprocessors["annotation"] = ProcessorChain([
                 vtc_preprocessor
             ], key="annotation")
