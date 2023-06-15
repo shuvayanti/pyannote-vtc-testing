@@ -6,58 +6,58 @@ Protocols:
     SpeakerDiarization:
       cougar:
         train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/cougar.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/cougar.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/cougar.train.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/cougar.train.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/cougar.train.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/cougar.train.all.lst
         development:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/cougar.dev.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/cougar.dev.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/cougar.dev.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/cougar.dev.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/cougar.dev.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/cougar.dev.all.lst
       fausey-trio:
         train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/fausey-trio.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/fausey-trio.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/fausey-trio.train.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/fausey-trio.train.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/fausey-trio.train.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/fausey-trio.train.all.lst
         development:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/fausey-trio.dev.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/fausey-trio.dev.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/fausey-trio.dev.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/fausey-trio.dev.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/fausey-trio.dev.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/fausey-trio.dev.all.lst
       lyon:
         train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/lyon.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/lyon.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/lyon.train.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/lyon.train.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/lyon.train.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/lyon.train.all.lst
         development:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/lyon.dev.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/lyon.dev.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/lyon.dev.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/lyon.dev.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/lyon.dev.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/lyon.dev.all.lst
       png2019:
         train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/png2019.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/png2019.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/png2019.train.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/png2019.train.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/png2019.train.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/png2019.train.all.lst
         development:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/png2019.dev.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/png2019.dev.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/png2019.dev.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/png2019.dev.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/png2019.dev.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/png2019.dev.all.lst
       tsimane2017:
         train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/tsimane2017.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/tsimane2017.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/tsimane2017.train.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/tsimane2017.train.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/tsimane2017.train.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/tsimane2017.train.all.lst
         development:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/tsimane2017.dev.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/tsimane2017.dev.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/tsimane2017.dev.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/tsimane2017.dev.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/tsimane2017.dev.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/tsimane2017.dev.all.lst
       vanuatu:
         train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/vanuatu.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/vanuatu.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/vanuatu.train.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/vanuatu.train.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/vanuatu.train.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/vanuatu.train.all.lst
         development:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files/vanuatu.dev.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files/vanuatu.dev.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files/vanuatu.dev.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/vanuatu.dev.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/vanuatu.dev.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_1-0/vanuatu.dev.all.lst
   BBT2:
     SpeakerDiarization:
       vanuatu:
