@@ -86,7 +86,10 @@ class BaseCommand:
                 vtc_preprocessor
             ], key="annotation")
         elif args.classes == "dataset":
+            with open(Path(__file__).parent / "data/dataset_mapping.yml") as mapping_file:
+                mapping_dict = yaml.safe_load(mapping_file)["mapping"]
             preprocessors["annotation"] = ProcessorChain([
+                LabelMapper(mapping_dict, keep_missing=True),
                 vtc_preprocessor
             ], key="annotation")
         return get_protocol(args.protocol, preprocessors=preprocessors)
