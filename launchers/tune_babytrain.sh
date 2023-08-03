@@ -5,12 +5,12 @@
 
 # load conda environment
 source /shared/apps/anaconda3/etc/profile.d/conda.sh
-conda activate pyannote
+conda activate /scratch2/sdas/conda/envs/pyannote
 
 
-python main.py runs/train-superdataset-test-4/ tune \
+python main.py runs/train-superdataset-test-3-1/ tune \
 -p X.SpeakerDiarization.DATASET \
---model_path runs/train-superdataset-test-4/checkpoints/last.ckpt \
--nit 50 \
---classes dataset \
+--model_path runs/train-superdataset-test-3-1/checkpoints/epoch=30-MultiLabelSegmentation-XSpeakerDiarizationDATASET-MultilabelAUROC=0.773830.ckpt \
+-nit 10 \
+--classes babytrain \
 --metric fscore

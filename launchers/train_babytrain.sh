@@ -5,11 +5,11 @@
 
 # load conda environment
 source /shared/apps/anaconda3/etc/profile.d/conda.sh
-conda activate pyannote
+conda activate /scratch2/sdas/conda/envs/pyannote
 
 
-python main.py runs/train-superdataset-test-4/ train \
+python main.py runs/train-superdataset-test-3-1/ train \
 -p X.SpeakerDiarization.DATASET \
---classes dataset \
+--classes babytrain \
 --model_type pyannet \
---epoch 200
+--epoch 100

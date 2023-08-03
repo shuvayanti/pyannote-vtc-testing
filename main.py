@@ -52,8 +52,8 @@ CLASSES = {"vtcdebug": {'classes': ["READER", "AGREER", "DISAGREER"],
            "babytrain": {'classes': ["MAL", "FEM", "CHI", "KCHI"],
                          'unions': {"SPEECH": ["MAL", "FEM", "CHI", "KCHI"]},
                          'intersections': {}},
-            "dataset": {'classes': ["MAL", "FEM", "CHI", "OCH"],
-                        'unions': {"SPEECH": ["MAL", "FEM", "CHI", "OCH"]},
+            "dataset": {'classes': ["MAL", "FEM", "CHI", "KCHI"],
+                        'unions': {"SPEECH": ["MAL", "FEM", "CHI", "KCHI"]},
                          'intersections': {}}
             }
 
