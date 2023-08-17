@@ -6,32 +6,27 @@ Protocols:
     SpeakerDiarization:
       providence:
         train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/providence.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/providence.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/providence.train.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/providence.train.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/providence.train.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/providence.train.all.lst
         development:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/providence.dev.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/providence.dev.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/providence.dev.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/providence.dev.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/providence.dev.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/providence.dev.all.lst
       tsay:
         train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/tsay.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/tsay.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/tsay.train.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/tsay.train.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/tsay.train.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/tsay.train.all.lst
         development:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/tsay.dev.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/tsay.dev.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/tsay.dev.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/tsay.dev.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/tsay.dev.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/tsay.dev.all.lst
       soderstrom:
         train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/soderstrom.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/soderstrom.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/soderstrom.train.all.lst
-      thomas:
-        train:
-          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/thomas.train.all.uem
-          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/thomas.train.all.rttm
-          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_3-0/thomas.train.all.lst
+          annotated: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/soderstrom.train.all.uem
+          annotation: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/soderstrom.train.all.rttm
+          uri: /scratch2/sdas/DATA/train-superdataset/VTC_files_5-0/soderstrom.train.all.lst
   BBT2:
     SpeakerDiarization:
       vanuatu:
@@ -69,8 +64,6 @@ Protocols:
       DATASET:
         train:
           DATASET.SpeakerDiarization.providence:
-          - train
-          DATASET.SpeakerDiarization.thomas:
           - train
           DATASET.SpeakerDiarization.soderstrom:
           - train
