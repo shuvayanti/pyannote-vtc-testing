@@ -19,7 +19,7 @@ from pyannote.database.protocol.protocol import Preprocessor
 from pyannote.database.util import load_rttm, LabelMapper
 from pyannote.metrics.base import BaseMetric
 from pyannote.pipeline import Optimizer
-from pytorch_lightning import Trainer
+from pytorch_lightning import Trainer,seed_everything
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
@@ -127,6 +127,8 @@ class TrainCommand(BaseCommand):
 
         vtc = cls.get_task(args)
 
+        seed_everything(42, workers=True)
+        
         if args.model_type == "simple":
             model = SimpleSegmentationModel(task=vtc)
         else:
@@ -163,7 +165,8 @@ class TrainCommand(BaseCommand):
                           'accelerator': "gpu",
                           'callbacks': [model_checkpoint], #, early_stopping],
                           'logger': logger,
-                          'max_epochs':args.epoch}
+                          'max_epochs':args.epoch,
+                          'deterministic':True}
         if args.resume:
             trainer_kwargs["resume_from_checkpoint"] = checkpoints_path / "last.ckpt"
 
