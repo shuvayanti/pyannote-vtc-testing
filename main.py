@@ -25,6 +25,10 @@ from pytorch_lightning.callbacks.model_checkpoint import ModelCheckpoint
 from pytorch_lightning.loggers import TensorBoardLogger
 from tqdm import tqdm
 
+torch.backends.cuda.matmul.allow_tf32 = False
+torch.backends.cudnn.allow_tf32 = False
+
+seed_everything(42, workers=True)
 
 class ProcessorChain:
 
@@ -85,13 +89,6 @@ class BaseCommand:
                 LabelMapper(mapping_dict, keep_missing=True),
                 vtc_preprocessor
             ], key="annotation")
-        elif args.classes == "dataset":
-            with open(Path(__file__).parent / "data/dataset_mapping.yml") as mapping_file:
-                mapping_dict = yaml.safe_load(mapping_file)["mapping"]
-            preprocessors["annotation"] = ProcessorChain([
-                LabelMapper(mapping_dict, keep_missing=True),
-                vtc_preprocessor
-            ], key="annotation")
         return get_protocol(args.protocol, preprocessors=preprocessors)
 
     @classmethod
@@ -114,6 +111,10 @@ class TrainCommand(BaseCommand):
         parser.add_argument("--classes", choices=CLASSES.keys(),
                             required=True,
                             type=str, help="Model architecture")
+        parser.add_argument("--scope",
+                            type=str,
+                            default="database",
+                            help="Pyannote database")
         parser.add_argument("--model_type", choices=["simple", "pyannet"],
                             required=True,
                             type=str, help="Model model checkpoint")
@@ -124,10 +125,9 @@ class TrainCommand(BaseCommand):
 
     @classmethod
     def run(cls, args: Namespace):
-
+        
         vtc = cls.get_task(args)
 
-        seed_everything(42, workers=True)
         
         if args.model_type == "simple":
             model = SimpleSegmentationModel(task=vtc)
@@ -135,7 +135,8 @@ class TrainCommand(BaseCommand):
             model = PyanNet(task=vtc)
 
         value_to_monitor, min_or_max = vtc.val_monitor
-
+        print(value_to_monitor, min_or_max)
+        
         checkpoints_path: Path = args.exp_dir / "checkpoints/"
         checkpoints_path.mkdir(parents=True, exist_ok=True)
 
